@@ -1,0 +1,20 @@
+---
+title: "p8105_hw3_zv2138"
+output: github_document
+---
+
+```{r Setup}
+library(tidyverse)
+library(p8105.datasets)
+data("instacart")
+```
+
+Write a short description of the dataset, noting the size and structure of the data, describing some key variables, and giving illstrative examples of observations. 
+
+
+How many aisles are there, and which aisles are the most items ordered from?
+```{r}
+instacart %>% 
+  
+```
+
