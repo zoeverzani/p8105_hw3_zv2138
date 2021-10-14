@@ -14,7 +14,32 @@ Write a short description of the dataset, noting the size and structure of the d
 
 How many aisles are there, and which aisles are the most items ordered from?
 ```{r}
+aisles = instacart %>% 
+ count(aisle, sort = TRUE)
+```
+`r head(pull(aisles, aisle), 5)`
+
+Make a plot that shows the number of items ordered in each aisle, limiting this to aisles with more than 10000 items ordered. Arrange aisles sensibly, and organize your plot so others can read it.
+```{r}
+aisles %>% 
+  filter(n > 10000) %>% 
+  ggplot(aes(x = reorder(aisle, n), y = n)) + 
+  geom_bar(stat='identity') + coord_flip() +
+  ylab("Total Items Ordered") + xlab("Aisle Name") + 
+  ggtitle("Total Items Ordered from Each Aisle") + 
+```
+
+Make a table showing the three most popular items in each of the aisles “baking ingredients”, “dog food care”, and “packaged vegetables fruits”. Include the number of times each item is ordered in your table.
+```{r}
 instacart %>% 
-  
+  filter(aisle %in% c('baking ingredients', 'dog food care','packaged vegetables fruits')) %>% 
+  count(product_name, aisle, sort = TRUE) %>% 
+  group_by(aisle) %>% slice(1:3) %>% 
+  knitr::kable()
+```
+
+Make a table showing the mean hour of the day at which Pink Lady Apples and Coffee Ice Cream are ordered on each day of the week; format this table for human readers (i.e. produce a 2 x 7 table).
+```{r}
+
 ```
 
