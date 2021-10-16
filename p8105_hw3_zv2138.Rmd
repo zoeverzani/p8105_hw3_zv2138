@@ -6,7 +6,19 @@ output: github_document
 ```{r Setup}
 library(tidyverse)
 library(p8105.datasets)
+library(lubridate)
+library(kimisc)
 data("instacart")
+```
+
+```{r Clean Data}
+instacart = 
+  instacart %>% 
+    mutate(
+      order_dow = order_dow + 1,
+      order_dow = wday(order_dow, label = T)
+   ) %>% 
+  
 ```
 
 Write a short description of the dataset, noting the size and structure of the data, describing some key variables, and giving illstrative examples of observations. 
@@ -40,6 +52,13 @@ instacart %>%
 
 Make a table showing the mean hour of the day at which Pink Lady Apples and Coffee Ice Cream are ordered on each day of the week; format this table for human readers (i.e. produce a 2 x 7 table).
 ```{r}
-
+instacart %>% 
+  filter(product_name %in% c('Pink Lady Apples', 'Coffee Ice Cream')) %>% 
+  select(product_name, order_dow, order_hour_of_day) %>% 
+  group_by(product_name, order_dow) %>% 
+  mutate(mean_time_of_day = seconds.to.hms(mean(order_hour_of_day*60*60))) %>% 
+  select(product_name, order_dow, mean_time_of_day) %>% 
+  distinct() %>% 
+  pivot_wider(product_name, names_from = "order_dow", values_from = "mean_time_of_day")
 ```
 
