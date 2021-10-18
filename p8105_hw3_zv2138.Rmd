@@ -48,7 +48,23 @@ instacart %>%
     theme(legend.position = "none")
 ```
 
-######## MAKE MORE !!!!!!
+```{r}
+instacart_alc_dept_dow = instacart %>% 
+  filter(department == "alcohol") %>% 
+  group_by(order_dow, aisle, department) %>% 
+  summarise(total = n())
+
+instacart_alc_dept_dow %>% 
+  ggplot(aes(x = order_dow, y = total, group = aisle, color = aisle)) + 
+  geom_line() +
+  theme(legend.position = "bottom") +
+   labs(
+    title = "Quantity of Orders over the Week taken from Aisles in the Alcohol Department",
+    x = "Day of the Week",
+    y = "Quantity of Orders",
+  )
+```
+
 
 ## Problem 1 Questions 
 How many aisles are there, and which aisles are the most items ordered from?
@@ -201,15 +217,9 @@ ggplot(total_activity, aes(x = day_id, y = total_activity)) + geom_line()
 
 Make a single-panel plot that shows the 24-hour activity time courses for each day and use color to indicate day of the week. 
 ```{r}
-brfss_spaghetti = accel_data %>%
-  filter(response == 'Excellent') %>% 
-  group_by(state, year) %>% 
-  mutate(average_data_value = mean(data_value, na.rm = TRUE)) %>% 
-  select(year, state, average_data_value) %>% 
-  unique()
-
 ggplot(data = accel_data, aes(x = activity_minute, y = data, group = day_id, color = day)) +
   geom_line() + 
+  facet_grid(week ~ .) +
   labs(
     title = "Average Data Value Over the Years by State",
     x = "Activity Minute",
