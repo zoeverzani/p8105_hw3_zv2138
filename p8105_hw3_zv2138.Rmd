@@ -169,3 +169,51 @@ brfss_ny %>%
     y = "Density"
   )
 ```
+
+# Problem 3
+## Load and Tidy the Accelerometer Data
+```{r}
+accel_data_og = read_csv("./accel_data.csv") 
+
+accel_data = read_csv("./accel_data.csv") %>% 
+  janitor::clean_names() %>% 
+  pivot_longer(activity_1:activity_1440,
+               names_to = "activity_minute",
+               values_to = "data") %>% 
+  mutate(activity_minute = gsub("^.{0,9}", "", activity_minute),
+         activity_minute = as.numeric(activity_minute),
+         day = factor(day, ordered = TRUE, 
+                  levels = c("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday")),
+         day_type = ifelse((day == c("Sunday", "Saturday")), "Weekend", "Weeday"))
+
+```
+
+Using your tidied dataset, aggregate accross minutes to create a total activity variable for each day, and create a table showing these totals. Are any trends apparent?
+```{r}
+total_activity = accel_data %>% 
+  group_by(day_id) %>% 
+  summarize(total_activity = sum(data)) 
+
+knitr::kable(total_activity)
+
+ggplot(total_activity, aes(x = day_id, y = total_activity)) + geom_line()
+```
+
+Make a single-panel plot that shows the 24-hour activity time courses for each day and use color to indicate day of the week. 
+```{r}
+brfss_spaghetti = accel_data %>%
+  filter(response == 'Excellent') %>% 
+  group_by(state, year) %>% 
+  mutate(average_data_value = mean(data_value, na.rm = TRUE)) %>% 
+  select(year, state, average_data_value) %>% 
+  unique()
+
+ggplot(data = accel_data, aes(x = activity_minute, y = data, group = day_id, color = day)) +
+  geom_line() + 
+  labs(
+    title = "Average Data Value Over the Years by State",
+    x = "Activity Minute",
+    y = "Activtiy Value",
+  ) 
+```
+
