@@ -49,14 +49,15 @@ instacart %>%
 ```
 
 ```{r}
-instacart_alc_dept_dow = instacart %>% 
-  filter(department == "alcohol") %>% 
+instacart_dept_dow = instacart %>% 
+  filter(department == "alcohol" | department == "pets") %>% 
   group_by(order_dow, aisle, department) %>% 
   summarise(total = n())
 
-instacart_alc_dept_dow %>% 
+instacart_dept_dow %>% 
   ggplot(aes(x = order_dow, y = total, group = aisle, color = aisle)) + 
   geom_line() +
+  facet_grid(department ~ ., scales = "free_y") +
   theme(legend.position = "bottom") +
    labs(
     title = "Quantity of Orders over the Week taken from Aisles in the Alcohol Department",
