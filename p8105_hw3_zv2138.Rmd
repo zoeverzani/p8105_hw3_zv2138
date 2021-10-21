@@ -3,7 +3,7 @@ title: "p8105_hw3_zv2138"
 output: github_document
 ---
 
-```{r Setup, message = FALSE}
+```{r Setup, echo = FALSE}
 library(tidyverse)
 library(p8105.datasets)
 library(lubridate)
@@ -24,19 +24,18 @@ instacart =
 ```
 
 ## Describing the Instacart Dataset 
-Write a short description of the dataset, noting the size and structure of the data, describing some key variables, and giving illustrative examples of observations. 
-
 The Instacart dataset has `r nrow(instacart)` observations with orders coming from `r length(unique(pull(instacart, order_id)))` costumers. There are `r length(unique(pull(instacart, product_name)))` products displayed in this dataset. Some examples of these products include `r head(unique(pull(instacart, product_name)),3)`. 
 
-The dataset has `r ncol(instacart)` variables including the house of the day an order was placed, the day of the week an order was placed, and the products in the order with the aisle the product came form.
-
-The day where the most orders are placed is `r tail(names(sort(table(pull(instacart,order_dow)))), 1)`. The hour of the day where the most orders are places is `r tail(names(sort(table(pull(instacart, order_hour_of_day)))), 1)`
+The dataset has `r ncol(instacart)` variables including the hour of the day an order was placed, the day of the week an order was placed, and the products in the order with the aisle the product came form.
 
 The dataset includes `r length(unique(pull(instacart, department)))` grocery store departments. Some examples of these departments include `r head(unique(pull(instacart, department)), 3)`. 
 
 ## Problem 1 Illustrative Examples 
-```{r}
+### Hour of the Day when Orders are Place 
+```{r, message = FALSE}
 instacart %>% 
+  select(order_id, order_dow, order_hour_of_day) %>% 
+  distinct() %>% 
   group_by(order_dow) %>% 
   ggplot(aes(x = order_dow, y = order_hour_of_day)) +
    geom_boxplot(aes(fill = order_dow), alpha = .5) +
@@ -47,8 +46,10 @@ instacart %>%
   ) + 
     theme(legend.position = "none")
 ```
+In general most orders are placed Sunday through Saturday between hours 10 to 17. ADDD
 
-```{r}
+### Quantity of Products over the Week taken from Aisles in the Department 
+```{r, message = FALSE}
 instacart_dept_dow = instacart %>% 
   filter(department == "alcohol" | department == "pets") %>% 
   group_by(order_dow, aisle, department) %>% 
@@ -60,32 +61,31 @@ instacart_dept_dow %>%
   facet_grid(department ~ ., scales = "free_y") +
   theme(legend.position = "bottom") +
    labs(
-    title = "Quantity of Orders over the Week taken from Aisles in the Alcohol Department",
+    title = "Quantity of Products over the Week taken from Aisles in the Department",
     x = "Day of the Week",
-    y = "Quantity of Orders",
+    y = "Quantity of Products",
   )
 ```
-
+ADDDADDDADDDADDDADDDADDD
 
 ## Problem 1 Questions 
 How many aisles are there, and which aisles are the most items ordered from?
-```{r}
+```{r, message = FALSE}
 aisles = instacart %>% 
  count(aisle, sort = TRUE)
 ```
 There are `r nrow(aisles)`. The top 5 aisles where most items are ordered are from `r head(pull(aisles, aisle), 5)`
 
-
-Make a plot that shows the number of items ordered in each aisle, limiting this to aisles with more than 10000 items ordered. Arrange aisles sensibly, and organize your plot so others can read it.
+Here we see a plot that shows the number of items ordered in each aisle with more than 10,000 items ordered.
 ```{r, message = FALSE}
 aisles %>% 
   filter(n > 10000) %>% 
   ggplot(aes(x = reorder(aisle, n), y = n)) + 
-  geom_bar(stat='identity') + coord_flip() +
+  geom_bar(stat ='identity') + coord_flip() +
   ylab("Total Items Ordered") + xlab("Aisle Name") + 
-  ggtitle("Total Items Ordered from Each Aisle") 
+  ggtitle("Total Items Ordered from Each Aisle with 
+              more than 10,000 items Ordered") 
 ```
-
 Make a table showing the three most popular items in each of the aisles “baking ingredients”, “dog food care”, and “packaged vegetables fruits”. Include the number of times each item is ordered in your table.
 ```{r, message = FALSE}
 instacart %>% 
@@ -112,7 +112,7 @@ table[, c("product_name","Sun","Mon","Tue","Wed","Thu","Fri","Sat")] %>%
 
 # Problem 2
 ## Cleaning BRFSS SMART 2010
-```{r}
+```{r, message = FALSE}
 data(brfss_smart2010) 
 brfss_smart2010 = brfss_smart2010 %>% 
   janitor::clean_names() 
@@ -129,7 +129,7 @@ brfss_subset = brfss_smart2010 %>%
 ## Problem 2 Questions 
 
 In 2002, which states were observed at 7 or more locations? What about in 2010?
-```{r}
+```{r, message = FALSE}
 states_02 = brfss_subset %>% 
   filter(year == '2002') %>% 
   select(locationdesc, state) %>% 
@@ -153,7 +153,7 @@ In 2010, `r pull(states_10, state)`  states were observed at 7 or more locations
 
 
 Spaghetti Plot 
-```{r}
+```{r,, message = FALSE}
 brfss_spaghetti = brfss_subset %>%
   filter(response == 'Excellent') %>% 
   group_by(state, year) %>% 
@@ -171,7 +171,7 @@ ggplot(data = brfss_spaghetti, aes(x = year, y = average_data_value, group = sta
 ```
 
 Make a two-panel plot showing, for the years 2006, and 2010, distribution of data_value for responses (“Poor” to “Excellent”) among locations in NY State.
-```{r}
+```{r, message = FALSE}
 brfss_ny = brfss_subset %>% 
   filter(year == "2006" | year == "2010", state == "NY") %>% 
   select(year, locationdesc, response, data_value)
@@ -189,38 +189,48 @@ brfss_ny %>%
 
 # Problem 3
 ## Load and Tidy the Accelerometer Data
-```{r}
+```{r, message = FALSE}
 accel_data_og = read_csv("./accel_data.csv") 
 
 accel_data = read_csv("./accel_data.csv") %>% 
   janitor::clean_names() %>% 
   pivot_longer(activity_1:activity_1440,
-               names_to = "activity_minute",
-               values_to = "data") %>% 
-  mutate(activity_minute = gsub("^.{0,9}", "", activity_minute),
-         activity_minute = as.numeric(activity_minute),
+               names_to = "minute",
+               values_to = "activity_data") %>% 
+  mutate(minute = gsub("^.{0,9}", "", minute),
+         minute = as.numeric(minute),
          day = factor(day, ordered = TRUE, 
                   levels = c("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday")),
-         day_type = ifelse((day == c("Sunday", "Saturday")), "Weekend", "Weeday"))
+         day_type = ifelse((day == c("Sunday", "Saturday")), "Weekend", "Weekday")) %>% 
+  relocate(day_type, .after = day)
+
 
 ```
 
 Using your tidied dataset, aggregate accross minutes to create a total activity variable for each day, and create a table showing these totals. Are any trends apparent?
-```{r}
+```{r, message = FALSE}
 total_activity = accel_data %>% 
-  group_by(day_id) %>% 
-  summarize(total_activity = sum(data)) 
+  group_by(day_id, day) %>% 
+  summarize(total_activity = sum(activity_data)) 
 
 knitr::kable(total_activity)
 
-ggplot(total_activity, aes(x = day_id, y = total_activity)) + geom_line()
+total_activity %>% 
+  group_by(day_id) %>% 
+  ggplot(aes(x = day_id, y = total_activity, group = day)) + 
+  geom_boxplot(aes(fill = day), alpha = .5) +
+   labs(
+    x = "Total Activity",
+    y = "Day of the Week"
+  )
 ```
 
 Make a single-panel plot that shows the 24-hour activity time courses for each day and use color to indicate day of the week. 
-```{r}
-ggplot(data = accel_data, aes(x = activity_minute, y = data, group = day_id, color = day)) +
-  geom_line() + 
-  facet_grid(week ~ .) +
+```{r, message = FALSE}
+accel_data %>% 
+  ggplot(aes(x = minute, y = activity_data, group = day, color = day)) +
+  geom_point(size = 0.4, alpha = 0.5) + 
+  geom_smooth(method = "gam", formula = y ~ s(x, bs = "cs"), size = 0.4, alpha = 0.5) +
   labs(
     title = "Average Data Value Over the Years by State",
     x = "Activity Minute",
