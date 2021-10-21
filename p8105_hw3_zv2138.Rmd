@@ -3,7 +3,7 @@ title: "p8105_hw3_zv2138"
 output: github_document
 ---
 
-```{r Setup, echo = FALSE}
+```{r Setup, message = FALSE}
 library(tidyverse)
 library(p8105.datasets)
 library(lubridate)
@@ -22,12 +22,9 @@ instacart =
    ) 
 ```
 
-**Describing the Instacart Dataset** 
-The Instacart dataset has `r nrow(instacart)` observations with orders coming from `r length(unique(pull(instacart, order_id)))` costumers. There are `r length(unique(pull(instacart, product_name)))` products displayed in this dataset. Some examples of these products include `r head(unique(pull(instacart, product_name)),3)`. 
+**The goal is to do some exploration of this dataset. To that end, write a short description of the dataset, noting the size and structure of the data, describing some key variables, and giving illustrative examples of observations.**  
 
-The dataset has `r ncol(instacart)` variables including the hour of the day an order was placed, the day of the week an order was placed, and the products in the order with the aisle the product came form.
-
-The dataset includes `r length(unique(pull(instacart, department)))` grocery store departments. Some examples of these departments include `r head(unique(pull(instacart, department)), 3)`. 
+*The Instacart dataset has `r nrow(instacart)` observations with orders coming from `r length(unique(pull(instacart, order_id)))` costumers. The dataset has `r ncol(instacart)` variables including the hour of the day an order was placed, the day of the week an order was placed, and the products in the order with the aisle the product came form. There are `r length(unique(pull(instacart, product_name)))` products displayed in this dataset. Some examples of these products include `r head(unique(pull(instacart, product_name)),3)`. The dataset includes `r length(unique(pull(instacart, department)))` grocery store departments. Some examples of these departments include `r head(unique(pull(instacart, department)), 3)`.*
 
 ## Problem 1 Illustrative Examples 
 ```{r, message = FALSE}
@@ -44,7 +41,8 @@ instacart %>%
   ) + 
     theme(legend.position = "none")
 ```
-In general most orders are placed Sunday through Saturday between hours 10 to 17. On Sunday there are several outliers of orders that ordered before 5am. On Saturday the median hour of the day when orders were places is 13.
+  
+*As you can see from our box plots most orders are placed Sunday through Saturday between hours 10 to 17. In general across the entire week the median hour for an order to be placed is around 14. On Sunday there seem to be several outliers where a orders are placed very early in the day around hours 0-3.*
 
 ```{r, message = FALSE}
 instacart_dept_dow = instacart %>% 
@@ -63,17 +61,20 @@ instacart_dept_dow %>%
     y = "Quantity of Products",
   )
 ```
-We can see that the most beer coolers are ordered on Thursday and Friday. Pet food is ordered the most on the weekends. 
+  
+*The above graphs show the day of the week in which products are ordered from select aisles in the pets department and alcohol department. As we can see customers order the most pet food on the weekends. Interestingly we see customers purchase more products from the beer coolers aisle than any other aisle in the alcohol department. Most beer cooler aisle products are purchased on Thursday and Friday.*
 
 ## Problem 1 Questions 
-How many aisles are there, and which aisles are the most items ordered from?
+**How many aisles are there, and which aisles are the most items ordered from?**
 ```{r, message = FALSE}
 aisles = instacart %>% 
  count(aisle, sort = TRUE)
 ```
-There are `r nrow(aisles)`. The top 5 aisles where most items are ordered are from `r head(pull(aisles, aisle), 5)`
+  
+*There are `r nrow(aisles)` aisles. The top 5 aisles where most items are ordered are from `r head(pull(aisles, aisle), 5)`*
 
-Here we see a plot that shows the number of items ordered in each aisle with more than 10,000 items ordered.
+**Make a plot that shows the number of items ordered in each aisle, limiting this to aisles with more than 10000 items ordered. Arrange aisles sensibly, and organize your plot so others can read it.**
+
 ```{r, message = FALSE}
 aisles %>% 
   filter(n > 10000) %>% 
@@ -83,10 +84,11 @@ aisles %>%
   ggtitle("Total Items Ordered from Each Aisle with 
               more than 10,000 items Ordered") 
 ```
-The aisle with the most items ordered are `fresh vegetables`, and the aisle with the least items ordered is `butter`.
+    
+*Limiting to aisles with more than 10,000 orders, the aisle with the most items ordered are fresh vegetables, and the aisle with the least items ordered is butter. The follow aisles have over 50,000 total items ordered: packaged vegetables fruits, fresh fruits, fresh vegetables.*
 
 
-Make a table showing the three most popular items in each of the aisles “baking ingredients”, “dog food care”, and “packaged vegetables fruits”. Include the number of times each item is ordered in your table.
+**Make a table showing the three most popular items in each of the aisles “baking ingredients”, “dog food care”, and “packaged vegetables fruits”. Include the number of times each item is ordered in your table.**
 ```{r, message = FALSE}
 instacart %>% 
   filter(aisle %in% c('baking ingredients', 'dog food care','packaged vegetables fruits')) %>% 
@@ -94,10 +96,13 @@ instacart %>%
   group_by(aisle) %>% slice(1:3) %>% 
   knitr::kable()
 ```
-In the `packaged vegetables fruits` aisle the most popular items ordered are all organic. Interestingly `Organic Baby Spinach` is ordered more than `Organic Blueberries`. In the `dog food care` aisle `Snack Sticks Chicken & Rice Recipe Dog Treats` has been ordered 30 times. Interesting in the `baking ingredients` aisle, `Light Brown Sugar` was ordered almost 100 more times than `Cane Sugar`.
+  
+*In the packaged vegetables fruits aisle the most popular items ordered are all organic. Interestingly Organic Baby Spinach is ordered almost twice as much as Organic Blueberries. In the dog food care aisle Snack Sticks Chicken & Rice Recipe Dog Treats has been ordered 30 times. Interesting in the baking ingredients aisle, Light Brown Sugar was ordered almost 100 more times than Cane Sugar. Suprisngly Pure Baking Soda was also ordred more than Cane Shufar but around 50 orders.*
 
-
-Make a table showing the mean hour of the day at which Pink Lady Apples and Coffee Ice Cream are ordered on each day of the week; format this table for human readers (i.e. produce a 2 x 7 table).
+  
+**Make a table showing the mean hour of the day at which Pink Lady Apples and Coffee Ice Cream are ordered on each day of the week; format this table for human readers (i.e. produce a 2 x 7 table).**
+  
+*Please note because the instructions said to format this table to human readers I converted hour of day into the time of day. However I have also attached the code showing a table for mean hour of the day*
 ```{r, message = FALSE}
 table = instacart %>% 
   filter(product_name %in% c('Pink Lady Apples', 'Coffee Ice Cream')) %>% 
@@ -111,10 +116,23 @@ table = instacart %>%
 table[, c("product_name","Sun","Mon","Tue","Wed","Thu","Fri","Sat")] %>% 
    knitr::kable()
 ```
-The mean hour of the day in which `Coffe Ice Cream` is ordered ranges from 12:15 to 15:22. The mean hour is latest in the day on Tuesday and earliest in the day on Friday.
-The mean hour of the day in which `Pink Lady Apples` is ordered ranges from 11:21 to 12:47. The mean hour is latest in the day on Friday and earliest in the day on Monday.
-Interestingly `Coffe Ice Cream` is on average ordered 2 hours later than `Pink Lady Apples` on Saturday. 
+  
+*The mean time of day in which Coffee Ice Cream is ordered ranges from 12:15 to 15:22. The mean time of day is latest in the day on Tuesday and earliest in the day on Friday. I found this surprising consider I figured people may want a last minute end of the day ice cream purchase for their weekend. The mean time of the day in which Pink Lady Apples is ordered ranges from 11:21 to 12:47. The mean time of day is latest in the day on Friday and earliest in the day on Monday.Interestingly Coffee Ice Cream is on average ordered 2 hours later than Pink Lady Apples on Saturday.*
 
+```{r, message = FALSE}
+table2 = instacart %>% 
+  filter(product_name %in% c('Pink Lady Apples', 'Coffee Ice Cream')) %>% 
+  select(product_name, order_dow, order_hour_of_day) %>% 
+  group_by(product_name, order_dow) %>% 
+  mutate(mean_hour_of_day = mean(order_hour_of_day)) %>% 
+  select(product_name, order_dow, mean_hour_of_day) %>% 
+  mutate(mean_hour_of_day = round(mean_hour_of_day, 2)) %>% 
+  distinct() %>% 
+  pivot_wider(product_name, names_from = "order_dow", values_from = "mean_hour_of_day") 
+
+table2[, c("product_name","Sun","Mon","Tue","Wed","Thu","Fri","Sat")] %>% 
+   knitr::kable()
+```
 
 # Problem 2
 **Cleaning BRFSS SMART 2010**
@@ -134,7 +152,7 @@ brfss_subset = brfss_smart2010 %>%
 
 ## Problem 2 Questions 
 
-In 2002, which states were observed at 7 or more locations? What about in 2010?
+**In 2002, which states were observed at 7 or more locations? What about in 2010?**
 ```{r, message = FALSE}
 states_02 = brfss_subset %>% 
   filter(year == '2002') %>% 
@@ -154,10 +172,10 @@ states_10 = brfss_subset %>%
 states_10 = states_10 %>% 
   filter(n >= 7)
 ```
-In 2002, `r pull(states_02, state)`  states were observed at 7 or more locations. 
-In 2010, `r pull(states_10, state)`  states were observed at 7 or more locations. 
+*In 2002, `r pull(states_02, state)`  states were observed at 7 or more locations.*
+*In 2010, `r pull(states_10, state)`  states were observed at 7 or more locations.* 
 
-
+**Construct a dataset that is limited to Excellent responses, and contains, year, state, and a variable that averages the data_value across locations within a state. Make a “spaghetti” plot of this average value over time within a state (that is, make a plot showing a line for each state across years – the geom_line geometry and group aesthetic will help).**
 ```{r,, message = FALSE}
 brfss_spaghetti = brfss_subset %>%
   filter(response == 'Excellent') %>% 
@@ -175,9 +193,10 @@ ggplot(data = brfss_spaghetti, aes(x = year, y = average_data_value, group = sta
     y = "Average Data Value",
   ) 
 ```
-Most states have an average data value ranging from 20 to 26 from 2002 to 2010. It appears that over this time frame there is a slight decrease in the average data value. 
+  
+*From 2002-2010 most states have an average data value ranging from 20 to 26. It appears that over this time frame there is a slight decrease in the average data value.across all states. The lowest data value is for WV in 2005 and the highest data value is for UT in 2002.*
 
-Make a two-panel plot showing, for the years 2006, and 2010, distribution of data_value for responses (“Poor” to “Excellent”) among locations in NY State.
+**Make a two-panel plot showing, for the years 2006, and 2010, distribution of data_value for responses (“Poor” to “Excellent”) among locations in NY State.**
 ```{r, message = FALSE}
 brfss_ny = brfss_subset %>% 
   filter(year == "2006" | year == "2010", state == "NY") %>% 
@@ -193,7 +212,8 @@ brfss_ny %>%
     y = "Density"
   )
 ```
-There does not appear to be a huge difference in the distribution of data value for responses among locations in New York State comparing 2006 to 2010. In both years states with an average data value of 0 to 5 had mostly poor responses. Interesting in 2006 there appears to be a peak in Fair responses for states with an average data value around 12. 
+  
+*There does not appear to be a huge difference in the distribution of data values for responses among locations in New York State comparing 2006 to 2010. In both years states with an average data value of 0 to 5 had mostly poor responses. Interesting in 2006 there appears to be a peak in Fair responses for states with an average data value around 12.*
 
 # Problem 3
 **Load and Tidy the Accelerometer Data**
@@ -212,7 +232,8 @@ accel_data = read_csv("./accel_data.csv") %>%
          day_type = ifelse((day == c("Sunday", "Saturday")), "Weekend", "Weekday")) %>% 
   relocate(day_type, .after = day)
 ```
-The Accelerometer dataset has `r nrow(accel_data)` observations `r ncol(accel_data)` variables. Variables include `week` which refers to the week number the data was collected. Data was collected over `r length(unique((pull(accel_data, week))))` weeks. The data contains a `minute` variable which represents the minute of the data the data is from. The data also contains an `activity_data` variable indicating the level of activity for a given `minute`. 
+  
+*The Accelerometer dataset has `r nrow(accel_data)` observations `r ncol(accel_data)` variables. Variables include week which refers to the week number the data was collected. Data was collected over `r length(unique((pull(accel_data, week))))` weeks. The data contains a `minute` variable which represents the minute of the data the data is from. The data also contains an `activity_data` variable indicating the level of activity for a given minute.*
 
 Using your tidied dataset, aggregate accross minutes to create a total activity variable for each day, and create a table showing these totals. Are any trends apparent?
 ```{r, message = FALSE}
