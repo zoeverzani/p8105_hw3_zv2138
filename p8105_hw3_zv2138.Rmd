@@ -233,9 +233,10 @@ accel_data = read_csv("./accel_data.csv") %>%
   relocate(day_type, .after = day)
 ```
   
-*The Accelerometer dataset has `r nrow(accel_data)` observations `r ncol(accel_data)` variables. Variables include week which refers to the week number the data was collected. Data was collected over `r length(unique((pull(accel_data, week))))` weeks. The data contains a `minute` variable which represents the minute of the data the data is from. The data also contains an `activity_data` variable indicating the level of activity for a given minute.*
+*The Accelerometer dataset has `r nrow(accel_data)` observations `r ncol(accel_data)` variables. Variables include week which refers to the week number the data was collected. Data was collected over `r length(unique((pull(accel_data, week))))` weeks. The data contains a minute variable which represents the minute of the day the data was collected from The data also contains an activity_data variable indicating the level of activity for a given minute. There is also a day variable which indicates the day (Sun through Sat) that the data was collected on and the day_type variable indicates if this day was a weekend or weekday.*
 
-Using your tidied dataset, aggregate accross minutes to create a total activity variable for each day, and create a table showing these totals. Are any trends apparent?
+**Traditional analyses of accelerometer data focus on the total activity over the day. Using your tidied dataset, aggregate accross minutes to create a total activity variable for each day, and create a table showing these totals. Are any trends apparent?**
+*I also created a box plot of the data to help me access for possible trends*
 ```{r, message = FALSE}
 total_activity = accel_data %>% 
   group_by(day_id, day) %>% 
@@ -244,27 +245,31 @@ total_activity = accel_data %>%
 knitr::kable(total_activity)
 
 total_activity %>% 
-  group_by(day_id) %>% 
-  ggplot(aes(x = day_id, y = total_activity, group = day)) + 
+  group_by(day) %>% 
+  ggplot(aes(x = day, y = total_activity, group = day)) + 
   geom_boxplot(aes(fill = day), alpha = .5) +
    labs(
     x = "Day of the Week",
     y = "Total Activity"
-  )
+  ) +
+  theme(legend.position = "none")
+
+
 ```
-The most activity occurred on Friday. Saturday has the most spread in total activity count while Wednesday has the least spread. Thursday and Tuesday have similar median level of total activity. 
+  
+*From the table we can see day 16 which is a Monday had the most total activity while day 24 and day 31 which are both Saturdays are tied for the least amont of total activity. From the box plot we can see the most activity occurred on Friday. Saturday has the most spread in total activity count while Wednesday has the least spread.*
 
 
-Make a single-panel plot that shows the 24-hour activity time courses for each day and use color to indicate day of the week. 
+**Accelerometer data allows the inspection activity over the course of the day. Make a single-panel plot that shows the 24-hour activity time courses for each day and use color to indicate day of the week. Describe in words any patterns or conclusions you can make based on this graph.**
 ```{r, message = FALSE}
 accel_data %>% 
   ggplot(aes(x = minute, y = activity_data, group = day, color = day)) +
   geom_point(size = 0.4, alpha = 0.5) + 
-  geom_smooth(method = "gam", formula = y ~ s(x, bs = "cs"), size = 0.4, alpha = 0.5) +
   labs(
     title = "24-Hour Activity for Each Day of the Week",
     x = "Activity Minute",
     y = "Activtiy Value",
   ) 
 ```
-Each dot represents the minute an activity occurred and the value of activity data. Each dot is color coded to indicated the day of the week. We see over the course of a 24 hour day activity value begins to increase at around minute 400. 
+  
+*Each dot represents the minute an activity occurred and the value of activity data. Each dot is color coded to indicated the day of the week. We see over the course of a 24 hour day activity value begins to increase at around minute 400. There seems to be peaks of activity at around minutes 600 and minutes 1250.*
